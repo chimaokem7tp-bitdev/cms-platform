@@ -16,68 +16,39 @@ parts/
 sdist/
 var/
 wheels/
+pip-wheel-metadata/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
-pip-log.txt
-pip-delete-this-directory.txt
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-*.log
-
-# Virtual environments
+PYTHONPATH
+.venv
 venv/
 ENV/
 env/
-.venv
-
-# Django
-*.sqlite3
 .env
 .env.local
-.env.*.local
 
-# IDEs
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+.npm
+
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 .DS_Store
-*.sublime-project
-*.sublime-workspace
 
-# Node
-node_modules/
-npm-debug.log
-yarn-error.log
-.npm/
+# Django
+db.sqlite3
+*.log
+/staticfiles/
+/media/
 
-# Build files
-dist/
-build/
-.next/
-out/
-
-# Environment
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# OS
+# Misc
 .DS_Store
-Thumbs.db
-*.tmp
-
-# Git
-.git/
+*.pid

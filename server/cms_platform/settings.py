@@ -1,38 +1,13 @@
-"""
-Django settings for cms_platform project.
-"""
-
 import os
 from pathlib import Path
-from dotenv import load_dotenv
+from decouple import config
 
-# Load environment variables
-load_dotenv()
-
-# Build paths inside the project
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Security keys and debug/read from environment for flexibility
-def env_bool(name: str, default: str = 'False') -> bool:
-    return os.getenv(name, default).lower() in ('1', 'true', 'yes')
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-in-production')
+DEBUG = config('DEBUG', default=True, cast=bool)
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
-def env_list(name: str, default: str = '') -> list:
-    val = os.getenv(name, default)
-    if not val:
-        return []
-    return [p.strip() for p in val.split(',') if p.strip()]
-
-
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-your-secret-key-change-this-in-production')
-
-# DEBUG should be False in production. Set DJANGO_DEBUG env var to 'True' or 'False'.
-DEBUG = env_bool('DJANGO_DEBUG', 'True')
-
-# Hosts allowed to serve the application. Provide comma-separated list in DJANGO_ALLOWED_HOSTS
-allowed = env_list('DJANGO_ALLOWED_HOSTS', '*')
-ALLOWED_HOSTS = allowed if allowed and allowed != ['*'] else ['*']
-
-# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -42,6 +17,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'drf_spectacular',
     'cms',
 ]
 
@@ -61,7 +37,7 @@ ROOT_URLCONF = 'cms_platform.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -76,59 +52,39 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'cms_platform.wsgi.application'
 
-# Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME', 'cms_db'),
-        'USER': os.getenv('DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('DB_PASSWORD', 'postgres'),
-        'HOST': os.getenv('DB_HOST', 'localhost'),
-        'PORT': os.getenv('DB_PORT', '5432'),
+        'ENGINE': config('DB_ENGINE', default='django.db.backends.sqlite3'),
+        'NAME': config('DB_NAME', default=BASE_DIR / 'db.sqlite3'),
+        'USER': config('DB_USER', default=''),
+        'PASSWORD': config('DB_PASSWORD', default=''),
+        'HOST': config('DB_HOST', default=''),
+        'PORT': config('DB_PORT', default=''),
     }
 }
 
-# Password validation
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# Internationalization
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# REST Framework configuration
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+]
+
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
-
-# CORS configuration
-# CORS configuration - configurable via DJANGO_CORS_ALLOWED_ORIGINS (comma-separated)
-CORS_ALLOWED_ORIGINS = env_list('DJANGO_CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://localhost:8000,http://127.0.0.1:3000')
-CORS_ALLOW_CREDENTIALS = env_bool('CORS_ALLOW_CREDENTIALS', 'True')
-
-# Security-sensitive settings (switch on in production via env)
-SECURE_SSL_REDIRECT = env_bool('SECURE_SSL_REDIRECT', 'False')
-SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', '0'))
-SESSION_COOKIE_SECURE = env_bool('SESSION_COOKIE_SECURE', 'False')
-CSRF_COOKIE_SECURE = env_bool('CSRF_COOKIE_SECURE', 'False')

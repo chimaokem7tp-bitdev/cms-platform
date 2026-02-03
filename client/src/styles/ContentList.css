@@ -1,0 +1,36 @@
+.content-list {
+  margin: 20px 0;
+}
+
+.content-list h2 {
+  margin-bottom: 20px;
+  color: #282c34;
+}
+
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.content-item {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.content-item:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.content-item h3 {
+  color: #282c34;
+  margin-bottom: 10px;
+}
+
+.content-item p {
+  color: #666;
+  line-height: 1.6;
+}
