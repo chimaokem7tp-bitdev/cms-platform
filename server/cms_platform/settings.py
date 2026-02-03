@@ -12,13 +12,25 @@ load_dotenv()
 # Build paths inside the project
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-your-secret-key-change-this-in-production'
+# Security keys and debug/read from environment for flexibility
+def env_bool(name: str, default: str = 'False') -> bool:
+    return os.getenv(name, default).lower() in ('1', 'true', 'yes')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+def env_list(name: str, default: str = '') -> list:
+    val = os.getenv(name, default)
+    if not val:
+        return []
+    return [p.strip() for p in val.split(',') if p.strip()]
 
-ALLOWED_HOSTS = ['*']
+
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-your-secret-key-change-this-in-production')
+
+# DEBUG should be False in production. Set DJANGO_DEBUG env var to 'True' or 'False'.
+DEBUG = env_bool('DJANGO_DEBUG', 'True')
+
+# Hosts allowed to serve the application. Provide comma-separated list in DJANGO_ALLOWED_HOSTS
+allowed = env_list('DJANGO_ALLOWED_HOSTS', '*')
+ALLOWED_HOSTS = allowed if allowed and allowed != ['*'] else ['*']
 
 # Application definition
 INSTALLED_APPS = [
@@ -35,11 +47,10 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -112,10 +123,12 @@ REST_FRAMEWORK = {
 }
 
 # CORS configuration
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://localhost:8000',
-    'http://127.0.0.1:3000',
-]
+# CORS configuration - configurable via DJANGO_CORS_ALLOWED_ORIGINS (comma-separated)
+CORS_ALLOWED_ORIGINS = env_list('DJANGO_CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://localhost:8000,http://127.0.0.1:3000')
+CORS_ALLOW_CREDENTIALS = env_bool('CORS_ALLOW_CREDENTIALS', 'True')
 
-CORS_ALLOW_CREDENTIALS = True
+# Security-sensitive settings (switch on in production via env)
+SECURE_SSL_REDIRECT = env_bool('SECURE_SSL_REDIRECT', 'False')
+SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', '0'))
+SESSION_COOKIE_SECURE = env_bool('SESSION_COOKIE_SECURE', 'False')
+CSRF_COOKIE_SECURE = env_bool('CSRF_COOKIE_SECURE', 'False')
